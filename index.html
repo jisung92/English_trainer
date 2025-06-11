@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>랜덤 영어 문장 학습기</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+    #sentence { font-size: 24px; margin: 20px; }
+    button { font-size: 20px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+  <h1>랜덤 영어 문장 학습기</h1>
+  <div id="sentence">로딩 중...</div>
+  <button onclick="playNext()">다음 문장</button>
+
+  <script>
+    let data = [];
+
+    // 구글 시트 ID와 시트이름 입력
+    const SHEET_ID = '1aBcD3EfGhIjKlMnOpQrStUvWxYz1234567890';  // 👉 여기를 본인 ID로 교체
+    const SHEET_NAME = 'Sheet1';  // 기본 시트 이름 (보통 Sheet1)
+
+    async function fetchData() {
+      try {
+        const res = await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`);
+        data = await res.json();
+        document.getElementById("sentence").innerText = "준비 완료! 시작해보세요.";
+      } catch (e) {
+        document.getElementById("sentence").innerText = "데이터를 불러오지 못했습니다.";
+      }
+    }
+
+    function playNext() {
+      if (data.length === 0) {
+        document.getElementById("sentence").innerText = "데이터가 없습니다!";
+        return;
+      }
+
+      const randomIndex = Math.floor(Math.random() * data.length);
+      const item = data[randomIndex];
+
+      document.getElementById("sentence").innerText = `${item.A}\n${item.B}`;
+
+      const utterKor = new SpeechSynthesisUtterance(item.A);
+      utterKor.lang = 'ko-KR';
+      speechSynthesis.speak(utterKor);
+
+      utterKor.onend = () => {
+        const utterEng = new SpeechSynthesisUtterance(item.B);
+        utterEng.lang = 'en-US';
+        speechSynthesis.speak(utterEng);
+      };
+    }
+
+    fetchData();
+  </script>
+</body>
+</html>
