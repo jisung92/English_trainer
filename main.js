@@ -55,7 +55,7 @@ function playSentence() {
 
       utterEng.onend = () => {
         if (autoPlay) {
-          setTimeout(playSentence, 1000); // 자동으로 다음 문장 재생
+          setTimeout(playSentence, 1000);
         }
       };
     }, delay);
@@ -69,7 +69,16 @@ function playNext() {
 function toggleAutoPlay() {
   autoPlay = !autoPlay;
   const btn = document.getElementById("autoButton");
-  btn.textContent = autoPlay ? "자동재생 중지" : "자동재생 시작";
+
+  if (autoPlay) {
+    btn.textContent = "자동재생 중지";
+    btn.style.backgroundColor = "green";
+    btn.style.color = "white";
+  } else {
+    btn.textContent = "자동재생 시작";
+    btn.style.backgroundColor = "";
+    btn.style.color = "";
+  }
 
   if (autoPlay) {
     playSentence();
