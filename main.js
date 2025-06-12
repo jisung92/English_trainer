@@ -8,6 +8,8 @@ let data = [
 
 let timer = null;
 let autoPlay = false;
+let voicesLoaded = false;
+let englishVoice = null;
 
 function getDelayByLength(text) {
   const baseDelay = 150;
@@ -15,9 +17,9 @@ function getDelayByLength(text) {
   return Math.min(text.length * baseDelay, maxDelay);
 }
 
-function getEnglishVoice() {
-  const voices = speechSynthesis.getVoices();
-  return voices.find(voice =>
+function loadVoices() {
+  let voices = speechSynthesis.getVoices();
+  englishVoice = voices.find(voice =>
     (voice.lang.startsWith('en-') && (
       voice.name.includes('Samantha') || 
       voice.name.includes('Daniel') || 
@@ -27,11 +29,22 @@ function getEnglishVoice() {
   );
 }
 
+speechSynthesis.onvoiceschanged = () => {
+  loadVoices();
+  voicesLoaded = true;
+  playSentence(); // 첫 실행 시 여기서 시작
+}
+
 function pickRandom() {
   return data[Math.floor(Math.random() * data.length)];
 }
 
 function playSentence() {
+  if (!voicesLoaded) {
+    console.log("음성 데이터 로드 중...");
+    return;
+  }
+
   speechSynthesis.cancel();
   if (timer) clearTimeout(timer);
 
@@ -48,7 +61,7 @@ function playSentence() {
       const utterEng = new SpeechSynthesisUtterance(item.English);
       utterEng.lang = 'en-US';
       utterEng.rate = 0.9;
-      utterEng.voice = getEnglishVoice();
+      utterEng.voice = englishVoice;
       speechSynthesis.speak(utterEng);
 
       document.getElementById("sentence").innerText = `${item.Korean}\n${item.English}`;
@@ -83,8 +96,4 @@ function toggleAutoPlay() {
   if (autoPlay) {
     playSentence();
   }
-}
-
-window.speechSynthesis.onvoiceschanged = () => {
-  playSentence();
 }
