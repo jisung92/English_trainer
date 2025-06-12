@@ -58,11 +58,9 @@ function playNext() {
   playSentence();
 }
 
-function prev() {
-  playSentence();  // 역으로 가도 그냥 랜덤 pick (이전 개념 사라짐)
-}
+// 뒤로가기 기능 제거
 
-// ✅ 최초 실행: 첫 랜덤문장 출력
+// 최초 실행: 첫 랜덤 문장 출력
 window.speechSynthesis.onvoiceschanged = () => {
   playSentence();
 }
