@@ -3,15 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>영어 학습기 v1.0</title>
-  <link rel="stylesheet" href="style.css">
+  <title>영어 학습기 v2.0</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    #sentence {
+      font-size: 24px;
+      margin: 40px 0;
+      white-space: pre-line;
+    }
+    button {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin: 10px;
+    }
+  </style>
 </head>
 <body>
   <h1>영어 학습기</h1>
   <div id="sentence">시작하려면 버튼을 누르세요</div>
   <div id="buttons">
-    <button onclick="playNext()">다음문장</button>
-    <button onclick="toggleAutoPlay()">자동재생</button>
+    <button onclick="playNext()">다음 문장</button>
+    <button id="autoButton" onclick="toggleAutoPlay()">자동재생 시작</button>
   </div>
 
   <script src="main.js"></script>
