@@ -8,6 +8,7 @@ let data = [
 
 let timer = null;
 let voicesReady = false;
+let started = false;
 
 function getDelayByLength(text) {
   const baseDelay = 150;
@@ -32,14 +33,14 @@ function pickRandom() {
 }
 
 function playSentence() {
-  // ✅ 이전 발성 및 타이머 초기화
+  if (!started) return;
+
   speechSynthesis.cancel();
   if (timer) clearTimeout(timer);
 
   const item = pickRandom();
   document.getElementById("sentence").innerText = `${item.Korean}\n`;
 
-  // ✅ 음성엔진 초기화 안정화 (Safari 대응 핵심포인트)
   setTimeout(() => {
     const utterKor = new SpeechSynthesisUtterance(item.Korean);
     utterKor.lang = 'ko-KR';
@@ -60,7 +61,7 @@ function playSentence() {
         document.getElementById("sentence").innerText = `${item.Korean}\n${item.English}`;
       }, delay);
     };
-  }, 150); // ✅ 이 딜레이가 사파리에서 핵심 안정화 역할
+  }, 150);
 }
 
 function playNext() {
@@ -71,12 +72,12 @@ function prev() {
   playSentence();
 }
 
+function start() {
+  started = true;
+  playSentence();
+}
+
 speechSynthesis.onvoiceschanged = () => {
   voicesReady = true;
   console.log("음성엔진 준비 완료");
-}
-
-// ✅ 앱 첫 실행 시 바로 랜덤 시작
-window.onload = () => {
-  playSentence();
 }
