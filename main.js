@@ -1,3 +1,5 @@
+const APP_VERSION = "v2.3";  // 👉 여기만 커밋할 때마다 변경하면 됨
+
 let data = [
   { Korean: "그 사람이 나한테 갑자기 말을 걸었어.", English: "The guy came up to me out of the blue." },
   { Korean: "나는 아침 일찍 일어났어.", English: "I got up early in the morning." },
@@ -32,7 +34,7 @@ function loadVoices() {
 speechSynthesis.onvoiceschanged = () => {
   loadVoices();
   voicesLoaded = true;
-  playSentence(); // 첫 실행 시 여기서 시작
+  playSentence();
 }
 
 function pickRandom() {
@@ -97,3 +99,8 @@ function toggleAutoPlay() {
     playSentence();
   }
 }
+
+// 👉 버전 표시 (최초 로드 시 실행)
+window.onload = () => {
+  document.getElementById("version").innerText = APP_VERSION;
+};
