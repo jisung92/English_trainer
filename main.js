@@ -6,25 +6,25 @@ let data = [
   { Korean: "영화를 재미있게 봤어.", English: "I enjoyed the movie." }
 ];
 
+let shuffledData = []; 
+let index = 0;
 let timer = null;
-let voicesReady = false;
-let englishVoice = null;
 
-function waitForVoices() {
-  return new Promise((resolve) => {
-    let voices = speechSynthesis.getVoices();
-    if (voices.length) {
-      resolve(voices);
-    } else {
-      speechSynthesis.onvoiceschanged = () => {
-        voices = speechSynthesis.getVoices();
-        resolve(voices);
-      };
-    }
-  });
+function shuffle(array) {
+  return array
+    .map(value => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
 }
 
-function selectEnglishVoice(voices) {
+function getDelayByLength(text) {
+  const baseDelay = 150;
+  const maxDelay = 3000;
+  return Math.min(text.length * baseDelay, maxDelay);
+}
+
+function getEnglishVoice() {
+  const voices = speechSynthesis.getVoices();
   return voices.find(voice =>
     (voice.lang.startsWith('en-') && (
       voice.name.includes('Samantha') || 
@@ -35,51 +35,50 @@ function selectEnglishVoice(voices) {
   );
 }
 
-function pickRandom() {
-  return data[Math.floor(Math.random() * data.length)];
-}
-
-function getDelayByLength(text) {
-  const baseDelay = 150;
-  const maxDelay = 3000;
-  return Math.min(text.length * baseDelay, maxDelay);
-}
-
 function playSentence() {
+  if (index >= shuffledData.length) {
+    document.getElementById("sentence").innerText = "🎉 모든 문장을 완료했습니다! 다시 시작하려면 새로고침.";
+    return;
+  }
+
   speechSynthesis.cancel();
   if (timer) clearTimeout(timer);
 
-  const item = pickRandom();
+  const item = shuffledData[index];
   document.getElementById("sentence").innerText = `${item.Korean}\n`;
 
-  setTimeout(() => {
-    const utterKor = new SpeechSynthesisUtterance(item.Korean);
-    utterKor.lang = 'ko-KR';
-    speechSynthesis.speak(utterKor);
+  const utterKor = new SpeechSynthesisUtterance(item.Korean);
+  utterKor.lang = 'ko-KR';
+  speechSynthesis.speak(utterKor);
 
-    utterKor.onend = () => {
-      const delay = getDelayByLength(item.Korean);
-      timer = setTimeout(() => {
-        const utterEng = new SpeechSynthesisUtterance(item.English);
-        utterEng.lang = 'en-US';
-        utterEng.rate = 0.9;
-        if (englishVoice) utterEng.voice = englishVoice;
-        speechSynthesis.speak(utterEng);
-        document.getElementById("sentence").innerText = `${item.Korean}\n${item.English}`;
-      }, delay);
-    };
-  }, 150);
+  utterKor.onend = () => {
+    const delay = getDelayByLength(item.Korean);
+    timer = setTimeout(() => {
+      const utterEng = new SpeechSynthesisUtterance(item.English);
+      utterEng.lang = 'en-US';
+      utterEng.rate = 0.9;
+      utterEng.voice = getEnglishVoice();
+      speechSynthesis.speak(utterEng);
+      document.getElementById("sentence").innerText = `${item.Korean}\n${item.English}`;
+    }, delay);
+  };
 }
 
-async function initialize() {
-  const voices = await waitForVoices();
-  englishVoice = selectEnglishVoice(voices);
-  voicesReady = true;
-  document.getElementById("sentence").innerText = "시작하려면 버튼을 누르세요";
-}
-
-function start() {
+function playNext() {
+  index++;
   playSentence();
 }
 
-initialize();
+function prev() {
+  if (index > 0) {
+    index--;
+    playSentence();
+  }
+}
+
+// ✅ 최초 실행: 랜덤으로 섞고 첫 문장 재생
+window.speechSynthesis.onvoiceschanged = () => {
+  shuffledData = shuffle(data);
+  index = 0;
+  playSentence();
+}
