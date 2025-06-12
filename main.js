@@ -1,17 +1,27 @@
-const APP_VERSION = "v3.0";
+const APP_VERSION = "v4.0";
 
-let data = [
-  { Korean: "그 사람이 나한테 갑자기 말을 걸었어.", English: "The guy came up to me out of the blue." },
-  { Korean: "나는 아침 일찍 일어났어.", English: "I got up early in the morning." },
-  { Korean: "비가 와서 집에 있었어.", English: "I stayed home because it was raining." },
-  { Korean: "너무 배가 고팠어.", English: "I was so hungry." },
-  { Korean: "영화를 재미있게 봤어.", English: "I enjoyed the movie." }
-];
+// 구글 스프레드시트 정보
+const SHEET_ID = '10a6fRoZKhtnZEvX6BgIUyNxp7LCFWd-D2nSKjqkMnNk';
+const SHEET_NAME = 'Sheet1';
 
+let data = [];
 let timer = null;
 let autoPlay = false;
 let voicesLoaded = false;
 let englishVoice = null;
+
+async function fetchData() {
+  const url = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
+
+  try {
+    const res = await fetch(url);
+    data = await res.json();
+    console.log("데이터 불러오기 성공:", data);
+  } catch (e) {
+    console.error("데이터 불러오기 실패:", e);
+    alert("데이터 로드 실패! 스프레드시트 공유설정 확인.");
+  }
+}
 
 function getDelayByLength(text) {
   const baseDelay = 150;
@@ -36,7 +46,6 @@ speechSynthesis.onvoiceschanged = () => {
   loadVoices();
 };
 
-// 항상 안전하게 호출용
 function ensureVoicesLoaded() {
   if (!voicesLoaded) {
     loadVoices();
@@ -48,6 +57,11 @@ function pickRandom() {
 }
 
 function playSentence() {
+  if (data.length === 0) {
+    console.warn("아직 데이터가 준비되지 않았습니다.");
+    return;
+  }
+
   ensureVoicesLoaded();
 
   speechSynthesis.cancel();
@@ -81,11 +95,20 @@ function playSentence() {
 }
 
 function playNext() {
+  if (data.length === 0) {
+    alert("데이터가 아직 로드되지 않았습니다.");
+    return;
+  }
   ensureVoicesLoaded();
   playSentence();
 }
 
 function toggleAutoPlay() {
+  if (data.length === 0) {
+    alert("데이터가 아직 로드되지 않았습니다.");
+    return;
+  }
+
   autoPlay = !autoPlay;
   const btn = document.getElementById("autoButton");
 
@@ -104,8 +127,16 @@ function toggleAutoPlay() {
   }
 }
 
-window.onload = () => {
+// 최초 로딩 시 실행
+window.onload = async () => {
   document.getElementById("version").innerText = APP_VERSION;
-  // 음성 로딩 시도 (최초 한 번)
+
+  await fetchData();
+  if (data.length > 0) {
+    document.getElementById("sentence").innerText = "데이터 로드 완료. 시작하려면 버튼을 누르세요.";
+  } else {
+    document.getElementById("sentence").innerText = "데이터 로드 실패.";
+  }
+
   loadVoices();
 };
