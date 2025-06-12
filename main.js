@@ -7,6 +7,7 @@ let data = [
 ];
 
 let timer = null;
+let autoPlay = false;
 
 function getDelayByLength(text) {
   const baseDelay = 150;
@@ -49,7 +50,16 @@ function playSentence() {
       utterEng.rate = 0.9;
       utterEng.voice = getEnglishVoice();
       speechSynthesis.speak(utterEng);
+
       document.getElementById("sentence").innerText = `${item.Korean}\n${item.English}`;
+
+      utterEng.onend = () => {
+        if (autoPlay) {
+          // 다음 문장 자동 재생
+          setTimeout(playSentence, 1000);  // 1초 쉬고 다음문장
+        }
+      };
+
     }, delay);
   };
 }
@@ -58,9 +68,15 @@ function playNext() {
   playSentence();
 }
 
-// 뒤로가기 기능 제거
+function toggleAutoPlay() {
+  autoPlay = !autoPlay;
+  alert(`자동재생: ${autoPlay ? 'ON' : 'OFF'}`);
+  if (autoPlay) {
+    playSentence();
+  }
+}
 
-// 최초 실행: 첫 랜덤 문장 출력
+// 최초 실행
 window.speechSynthesis.onvoiceschanged = () => {
   playSentence();
 }
