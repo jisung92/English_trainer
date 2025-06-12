@@ -32,20 +32,16 @@ function pickRandom() {
 }
 
 function playSentence() {
-  if (!voicesReady) {
-    console.log("음성엔진 준비 안됨");
-    return;
-  }
-
   speechSynthesis.cancel();
   if (timer) clearTimeout(timer);
 
   const item = pickRandom();
   document.getElementById("sentence").innerText = `${item.Korean}\n`;
 
+  // 한글 먼저 발음
   const utterKor = new SpeechSynthesisUtterance(item.Korean);
   utterKor.lang = 'ko-KR';
-  speechSynthesis.speak(utterKor);
+  if (voicesReady) speechSynthesis.speak(utterKor);
 
   utterKor.onend = () => {
     const delay = getDelayByLength(item.Korean);
@@ -53,8 +49,10 @@ function playSentence() {
       const utterEng = new SpeechSynthesisUtterance(item.English);
       utterEng.lang = 'en-US';
       utterEng.rate = 0.9;
-      utterEng.voice = getEnglishVoice();
-      speechSynthesis.speak(utterEng);
+      if (voicesReady) {
+        utterEng.voice = getEnglishVoice();
+        speechSynthesis.speak(utterEng);
+      }
       document.getElementById("sentence").innerText = `${item.Korean}\n${item.English}`;
     }, delay);
   };
@@ -68,8 +66,11 @@ function prev() {
   playSentence();
 }
 
-// 음성엔진이 준비되면 단순히 flag만 세팅
+// 음성엔진 준비시 단순히 flag만 ON
 speechSynthesis.onvoiceschanged = () => {
   voicesReady = true;
   console.log("음성엔진 준비 완료");
 }
+
+// 초기 한번 출력 (이제 항상 시작됨!)
+playSentence();
