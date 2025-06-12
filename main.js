@@ -55,11 +55,9 @@ function playSentence() {
 
       utterEng.onend = () => {
         if (autoPlay) {
-          // 다음 문장 자동 재생
-          setTimeout(playSentence, 1000);  // 1초 쉬고 다음문장
+          setTimeout(playSentence, 1000); // 자동으로 다음 문장 재생
         }
       };
-
     }, delay);
   };
 }
@@ -70,13 +68,14 @@ function playNext() {
 
 function toggleAutoPlay() {
   autoPlay = !autoPlay;
-  alert(`자동재생: ${autoPlay ? 'ON' : 'OFF'}`);
+  const btn = document.getElementById("autoButton");
+  btn.textContent = autoPlay ? "자동재생 중지" : "자동재생 시작";
+
   if (autoPlay) {
     playSentence();
   }
 }
 
-// 최초 실행
 window.speechSynthesis.onvoiceschanged = () => {
   playSentence();
 }
