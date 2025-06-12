@@ -33,8 +33,7 @@ function pickRandom() {
 
 function playSentence() {
   if (!voicesReady) {
-    // 음성엔진 준비 안되면 잠시 대기
-    setTimeout(playSentence, 100);
+    console.log("음성엔진 준비 안됨");
     return;
   }
 
@@ -69,8 +68,8 @@ function prev() {
   playSentence();
 }
 
-// ✅ 음성엔진 준비 이후 랜덤 시작
+// 음성엔진이 준비되면 단순히 flag만 세팅
 speechSynthesis.onvoiceschanged = () => {
   voicesReady = true;
-  playSentence();
+  console.log("음성엔진 준비 완료");
 }
