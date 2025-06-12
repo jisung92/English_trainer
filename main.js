@@ -1,3 +1,4 @@
+// ✅ 예시 스텁 데이터 (이곳에 구글시트 연동도 쉽게 확장 가능)
 let data = [
   { Korean: "그 사람이 나한테 갑자기 말을 걸었어.", English: "The guy came up to me out of the blue." },
   { Korean: "나는 아침 일찍 일어났어.", English: "I got up early in the morning." },
@@ -6,16 +7,26 @@ let data = [
   { Korean: "영화를 재미있게 봤어.", English: "I enjoyed the movie." }
 ];
 
-let shuffledData = []; 
+// ✅ 나중에 구글시트 연동시:
+/*
+async function fetchData() {
+  const SHEET_ID = '구글시트ID';
+  const SHEET_NAME = 'Sheet1';
+  const url = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
+
+  try {
+    const res = await fetch(url);
+    data = await res.json();
+    console.log("데이터 불러오기 성공:", data);
+  } catch (e) {
+    console.error("데이터 불러오기 실패:", e);
+  }
+}
+// fetchData();
+*/
+
 let index = 0;
 let timer = null;
-
-function shuffle(array) {
-  return array
-    .map(value => ({ value, sort: Math.random() }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({ value }) => value);
-}
 
 function getDelayByLength(text) {
   const baseDelay = 150;
@@ -23,6 +34,7 @@ function getDelayByLength(text) {
   return Math.min(text.length * baseDelay, maxDelay);
 }
 
+// ✅ 더 자연스러운 영어 음성 찾기
 function getEnglishVoice() {
   const voices = speechSynthesis.getVoices();
   return voices.find(voice =>
@@ -36,15 +48,16 @@ function getEnglishVoice() {
 }
 
 function playSentence() {
-  if (index >= shuffledData.length) {
-    document.getElementById("sentence").innerText = "🎉 모든 문장을 완료했습니다! 다시 시작하려면 새로고침.";
+  if (index < 0) index = 0;
+  if (index >= data.length) {
+    document.getElementById("sentence").innerText = "모든 문장을 완료했습니다!";
     return;
   }
 
   speechSynthesis.cancel();
   if (timer) clearTimeout(timer);
 
-  const item = shuffledData[index];
+  const item = data[index];
   document.getElementById("sentence").innerText = `${item.Korean}\n`;
 
   const utterKor = new SpeechSynthesisUtterance(item.Korean);
@@ -66,19 +79,19 @@ function playSentence() {
 
 function playNext() {
   index++;
+  if (index >= data.length) {
+    index = data.length - 1; 
+  }
   playSentence();
 }
 
 function prev() {
-  if (index > 0) {
-    index--;
-    playSentence();
-  }
+  index--;
+  if (index < 0) index = 0;
+  playSentence();
 }
 
-// ✅ 최초 실행: 랜덤으로 섞고 첫 문장 재생
+// ✅ 브라우저 음성 로딩 후 첫 문장 출력
 window.speechSynthesis.onvoiceschanged = () => {
-  shuffledData = shuffle(data);
-  index = 0;
   playSentence();
 }
