@@ -8,16 +8,23 @@ let data = [
 
 let timer = null;
 let voicesReady = false;
-let started = false;
+let englishVoice = null;
 
-function getDelayByLength(text) {
-  const baseDelay = 150;
-  const maxDelay = 3000;
-  return Math.min(text.length * baseDelay, maxDelay);
+function waitForVoices() {
+  return new Promise((resolve) => {
+    let voices = speechSynthesis.getVoices();
+    if (voices.length) {
+      resolve(voices);
+    } else {
+      speechSynthesis.onvoiceschanged = () => {
+        voices = speechSynthesis.getVoices();
+        resolve(voices);
+      };
+    }
+  });
 }
 
-function getEnglishVoice() {
-  const voices = speechSynthesis.getVoices();
+function selectEnglishVoice(voices) {
   return voices.find(voice =>
     (voice.lang.startsWith('en-') && (
       voice.name.includes('Samantha') || 
@@ -32,9 +39,13 @@ function pickRandom() {
   return data[Math.floor(Math.random() * data.length)];
 }
 
-function playSentence() {
-  if (!started) return;
+function getDelayByLength(text) {
+  const baseDelay = 150;
+  const maxDelay = 3000;
+  return Math.min(text.length * baseDelay, maxDelay);
+}
 
+function playSentence() {
   speechSynthesis.cancel();
   if (timer) clearTimeout(timer);
 
@@ -44,9 +55,7 @@ function playSentence() {
   setTimeout(() => {
     const utterKor = new SpeechSynthesisUtterance(item.Korean);
     utterKor.lang = 'ko-KR';
-    if (voicesReady) {
-      speechSynthesis.speak(utterKor);
-    }
+    speechSynthesis.speak(utterKor);
 
     utterKor.onend = () => {
       const delay = getDelayByLength(item.Korean);
@@ -54,30 +63,23 @@ function playSentence() {
         const utterEng = new SpeechSynthesisUtterance(item.English);
         utterEng.lang = 'en-US';
         utterEng.rate = 0.9;
-        if (voicesReady) {
-          utterEng.voice = getEnglishVoice();
-          speechSynthesis.speak(utterEng);
-        }
+        if (englishVoice) utterEng.voice = englishVoice;
+        speechSynthesis.speak(utterEng);
         document.getElementById("sentence").innerText = `${item.Korean}\n${item.English}`;
       }, delay);
     };
   }, 150);
 }
 
-function playNext() {
-  playSentence();
-}
-
-function prev() {
-  playSentence();
+async function initialize() {
+  const voices = await waitForVoices();
+  englishVoice = selectEnglishVoice(voices);
+  voicesReady = true;
+  document.getElementById("sentence").innerText = "시작하려면 버튼을 누르세요";
 }
 
 function start() {
-  started = true;
   playSentence();
 }
 
-speechSynthesis.onvoiceschanged = () => {
-  voicesReady = true;
-  console.log("음성엔진 준비 완료");
-}
+initialize();
