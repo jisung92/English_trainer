@@ -9,8 +9,8 @@ let data = [
 let index = 0;
 
 function getDelayByLength(text) {
-  const baseDelay = 150; 
-  const maxDelay = 3000; 
+  const baseDelay = 150;
+  const maxDelay = 3000;
   return Math.min(text.length * baseDelay, maxDelay);
 }
 
@@ -53,3 +53,6 @@ function prev() {
   if (index < 0) index = 0;
   playSentence();
 }
+
+// 처음 시작할 때 첫 문장 자동으로 재생
+playSentence();
