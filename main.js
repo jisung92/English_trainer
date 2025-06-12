@@ -1,4 +1,4 @@
-const APP_VERSION = "v4.0";
+const APP_VERSION = "v4.1";
 
 // 구글 스프레드시트 정보
 const SHEET_ID = '10a6fRoZKhtnZEvX6BgIUyNxp7LCFWd-D2nSKjqkMnNk';
@@ -36,7 +36,7 @@ function loadVoices() {
       voice.name.includes('Samantha') || 
       voice.name.includes('Daniel') || 
       voice.name.includes('Google') || 
-      voice.name.includes('UK')
+      voice.name.includes('US')
     ))
   );
   voicesLoaded = true;
