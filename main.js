@@ -9,12 +9,13 @@ let data = [
 let index = 0;
 
 function getDelayByLength(text) {
-  const baseDelay = 150; // 글자당 150ms
-  const maxDelay = 3000; // 최대 3초
+  const baseDelay = 150; 
+  const maxDelay = 3000; 
   return Math.min(text.length * baseDelay, maxDelay);
 }
 
-function playNext() {
+function playSentence() {
+  if (index < 0) index = 0;
   if (index >= data.length) {
     document.getElementById("sentence").innerText = "모든 문장을 완료했습니다!";
     return;
@@ -37,6 +38,18 @@ function playNext() {
       document.getElementById("sentence").innerText = `${item.Korean}\n${item.English}`;
     }, delay);
   };
+}
 
+function playNext() {
   index++;
+  if (index >= data.length) {
+    index = data.length - 1; 
+  }
+  playSentence();
+}
+
+function prev() {
+  index--;
+  if (index < 0) index = 0;
+  playSentence();
 }
