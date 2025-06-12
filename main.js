@@ -7,6 +7,7 @@ let data = [
 ];
 
 let timer = null;
+let voicesReady = false;
 
 function getDelayByLength(text) {
   const baseDelay = 150;
@@ -31,6 +32,12 @@ function pickRandom() {
 }
 
 function playSentence() {
+  if (!voicesReady) {
+    // 음성엔진 준비 안되면 잠시 대기
+    setTimeout(playSentence, 100);
+    return;
+  }
+
   speechSynthesis.cancel();
   if (timer) clearTimeout(timer);
 
@@ -59,10 +66,11 @@ function playNext() {
 }
 
 function prev() {
-  playSentence();  // 역으로 가도 그냥 랜덤 pick (이전 개념 사라짐)
+  playSentence();
 }
 
-// ✅ 최초 실행: 첫 랜덤문장 출력
-window.speechSynthesis.onvoiceschanged = () => {
+// ✅ 음성엔진 준비 이후 랜덤 시작
+speechSynthesis.onvoiceschanged = () => {
+  voicesReady = true;
   playSentence();
 }
