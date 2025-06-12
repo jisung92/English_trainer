@@ -1,45 +1,42 @@
-// ✅ 스텁 데이터 (예시 문장)
 let data = [
-  {
-    Korean: "그 사람이 나한테 갑자기 말을 걸었어.",
-    English: "The guy came up to me out of the blue."
-  }
+  { Korean: "그 사람이 나한테 갑자기 말을 걸었어.", English: "The guy came up to me out of the blue." },
+  { Korean: "나는 아침 일찍 일어났어.", English: "I got up early in the morning." },
+  { Korean: "비가 와서 집에 있었어.", English: "I stayed home because it was raining." },
+  { Korean: "너무 배가 고팠어.", English: "I was so hungry." },
+  { Korean: "영화를 재미있게 봤어.", English: "I enjoyed the movie." }
 ];
 
-// ✅ 구글시트 연동 (나중에 사용할 부분)
-/*
-async function fetchData() {
-  const SHEET_ID = '여기에 시트ID입력';
-  const SHEET_NAME = 'Sheet1';  // 시트 이름 (보통 기본값은 Sheet1)
-  const url = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
-  
-  try {
-    const res = await fetch(url);
-    data = await res.json();
-    console.log("데이터 불러오기 성공:", data);
-  } catch (e) {
-    console.error("데이터 불러오기 실패:", e);
-  }
+let index = 0;
+
+function getDelayByLength(text) {
+  const baseDelay = 150; // 글자당 150ms
+  const maxDelay = 3000; // 최대 3초
+  return Math.min(text.length * baseDelay, maxDelay);
 }
 
-// 페이지 로딩 시 데이터 불러오기 (구글시트 연동시 활성화)
-// fetchData();
-*/
-
 function playNext() {
-  const randomIndex = Math.floor(Math.random() * data.length);
-  const item = data[randomIndex];
+  if (index >= data.length) {
+    document.getElementById("sentence").innerText = "모든 문장을 완료했습니다!";
+    return;
+  }
 
-  document.getElementById("sentence").innerText = `${item.Korean}\n${item.English}`;
+  const item = data[index];
+  document.getElementById("sentence").innerText = `${item.Korean}\n`;
 
   const utterKor = new SpeechSynthesisUtterance(item.Korean);
   utterKor.lang = 'ko-KR';
   speechSynthesis.speak(utterKor);
 
   utterKor.onend = () => {
-    const utterEng = new SpeechSynthesisUtterance(item.English);
-    utterEng.lang = 'en-US';
-    utterEng.rate = 0.9; // 속도 약간 조정 (iOS 호환)
-    speechSynthesis.speak(utterEng);
+    const delay = getDelayByLength(item.Korean);
+    setTimeout(() => {
+      const utterEng = new SpeechSynthesisUtterance(item.English);
+      utterEng.lang = 'en-US';
+      utterEng.rate = 0.9;
+      speechSynthesis.speak(utterEng);
+      document.getElementById("sentence").innerText = `${item.Korean}\n${item.English}`;
+    }, delay);
   };
+
+  index++;
 }
