@@ -7,6 +7,7 @@ let data = [
 ];
 
 let index = 0;
+let timer = null;  // 딜레이 타이머 추적용
 
 function getDelayByLength(text) {
   const baseDelay = 150;
@@ -21,6 +22,10 @@ function playSentence() {
     return;
   }
 
+  // 이전 음성, 타이머 초기화
+  speechSynthesis.cancel();
+  if (timer) clearTimeout(timer);
+
   const item = data[index];
   document.getElementById("sentence").innerText = `${item.Korean}\n`;
 
@@ -30,7 +35,7 @@ function playSentence() {
 
   utterKor.onend = () => {
     const delay = getDelayByLength(item.Korean);
-    setTimeout(() => {
+    timer = setTimeout(() => {
       const utterEng = new SpeechSynthesisUtterance(item.English);
       utterEng.lang = 'en-US';
       utterEng.rate = 0.9;
@@ -54,5 +59,5 @@ function prev() {
   playSentence();
 }
 
-// 처음 시작할 때 첫 문장 자동으로 재생
+// 처음 시작 시 자동 재생
 playSentence();
