@@ -1,4 +1,4 @@
-const APP_VERSION = "v4.1";
+const APP_VERSION = "v4.2";
 
 // 구글 스프레드시트 정보
 const SHEET_ID = '10a6fRoZKhtnZEvX6BgIUyNxp7LCFWd-D2nSKjqkMnNk';
