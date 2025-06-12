@@ -1,4 +1,4 @@
-const APP_VERSION = "v2.3";  // 👉 여기만 커밋할 때마다 변경하면 됨
+const APP_VERSION = "v3.0";
 
 let data = [
   { Korean: "그 사람이 나한테 갑자기 말을 걸었어.", English: "The guy came up to me out of the blue." },
@@ -29,12 +29,18 @@ function loadVoices() {
       voice.name.includes('UK')
     ))
   );
+  voicesLoaded = true;
 }
 
 speechSynthesis.onvoiceschanged = () => {
   loadVoices();
-  voicesLoaded = true;
-  playSentence();
+};
+
+// 항상 안전하게 호출용
+function ensureVoicesLoaded() {
+  if (!voicesLoaded) {
+    loadVoices();
+  }
 }
 
 function pickRandom() {
@@ -42,10 +48,7 @@ function pickRandom() {
 }
 
 function playSentence() {
-  if (!voicesLoaded) {
-    console.log("음성 데이터 로드 중...");
-    return;
-  }
+  ensureVoicesLoaded();
 
   speechSynthesis.cancel();
   if (timer) clearTimeout(timer);
@@ -78,6 +81,7 @@ function playSentence() {
 }
 
 function playNext() {
+  ensureVoicesLoaded();
   playSentence();
 }
 
@@ -100,7 +104,8 @@ function toggleAutoPlay() {
   }
 }
 
-// 👉 버전 표시 (최초 로드 시 실행)
 window.onload = () => {
   document.getElementById("version").innerText = APP_VERSION;
+  // 음성 로딩 시도 (최초 한 번)
+  loadVoices();
 };
