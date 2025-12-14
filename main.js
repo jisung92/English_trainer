@@ -1,4 +1,4 @@
-const APP_VERSION = "v4.3";
+const APP_VERSION = "v4.4";
 
 // 구글 스프레드시트 정보
 const SHEET_ID = '10a6fRoZKhtnZEvX6BgIUyNxp7LCFWd-D2nSKjqkMnNk';
@@ -32,15 +32,18 @@ function getDelayByLength(text) {
 function loadVoices() {
   const voices = speechSynthesis.getVoices();
 
-  // 1순위: 정확히 en-US
-  englishVoice = voices.find(v => v.lang === 'en-US');
+  // 1순위: 미국 남성 음성 이름
+  englishVoice = voices.find(v =>
+    v.lang === 'en-US' &&
+    /(Aaron|Alex|Fred|Tom)/i.test(v.name)
+  );
 
-  // 2순위: en-US로 시작하는 것 (플랫폼 차이 대응)
+  // 2순위: 아무 en-US
   if (!englishVoice) {
-    englishVoice = voices.find(v => v.lang.startsWith('en-US'));
+    englishVoice = voices.find(v => v.lang === 'en-US');
   }
 
-  // 3순위: 어쩔 수 없을 때만 en-
+  // 3순위: en-
   if (!englishVoice) {
     englishVoice = voices.find(v => v.lang.startsWith('en-'));
   }
