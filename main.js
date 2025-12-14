@@ -30,17 +30,24 @@ function getDelayByLength(text) {
 }
 
 function loadVoices() {
-  let voices = speechSynthesis.getVoices();
-  englishVoice = voices.find(voice =>
-    (voice.lang.startsWith('en-') && (
-      voice.name.includes('Samantha') || 
-      voice.name.includes('Daniel') || 
-      voice.name.includes('Google') || 
-      voice.name.includes('US')
-    ))
-  );
+  const voices = speechSynthesis.getVoices();
+
+  // 1순위: 정확히 en-US
+  englishVoice = voices.find(v => v.lang === 'en-US');
+
+  // 2순위: en-US로 시작하는 것 (플랫폼 차이 대응)
+  if (!englishVoice) {
+    englishVoice = voices.find(v => v.lang.startsWith('en-US'));
+  }
+
+  // 3순위: 어쩔 수 없을 때만 en-
+  if (!englishVoice) {
+    englishVoice = voices.find(v => v.lang.startsWith('en-'));
+  }
+
   voicesLoaded = true;
 }
+
 
 speechSynthesis.onvoiceschanged = () => {
   loadVoices();
