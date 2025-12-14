@@ -2,18 +2,28 @@
 <html lang="ko">
 <head>
   <link rel="manifest" href="manifest.json">
- <meta name="theme-color" content="#4CAF50">
+  <meta name="theme-color" content="#4CAF50">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>영어 학습기</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
   <h1>영어 학습기 <span id="version"></span></h1>
+
   <div id="sentence">시작하려면 버튼을 누르세요</div>
+
   <div id="buttons">
     <button onclick="playNext()">다음 문장</button>
     <button id="autoButton" onclick="toggleAutoPlay()">자동재생 시작</button>
+  </div>
+
+  <!-- 🔽 영어 목소리 선택 UI (HTML만 추가) -->
+  <div id="voicePanel" style="margin-top:16px;">
+    <label for="voiceSelect"><b>English Voice 선택</b></label><br>
+    <select id="voiceSelect" style="width:100%; max-width:420px; padding:8px;"></select>
+    <div id="voiceInfo" style="margin-top:6px; font-size:14px; opacity:0.8;"></div>
   </div>
 
   <script src="main.js"></script>
