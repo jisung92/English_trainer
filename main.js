@@ -1,4 +1,4 @@
-const APP_VERSION = "v4.5";
+const APP_VERSION = "v4.6";
 
 // 구글 스프레드시트 정보
 const SHEET_ID = '10a6fRoZKhtnZEvX6BgIUyNxp7LCFWd-D2nSKjqkMnNk';
@@ -9,6 +9,9 @@ let timer = null;
 let autoPlay = false;
 let voicesLoaded = false;
 let englishVoice = null;
+// 문장 순서 관리
+let sentenceQueue = [];
+let currentIndex = 0;
 
 async function fetchData() {
   const url = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
@@ -109,8 +112,40 @@ function ensureVoicesLoaded() {
   }
 }
 
-function pickRandom() {
-  return data[Math.floor(Math.random() * data.length)];
+function shuffleQueue() {
+  sentenceQueue = [...data];
+
+  // Fisher-Yates shuffle
+  for (let i = sentenceQueue.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [sentenceQueue[i], sentenceQueue[j]] =
+      [sentenceQueue[j], sentenceQueue[i]];
+  }
+
+  currentIndex = 0;
+}
+
+function getNextSentence() {
+  // 처음 시작하거나 한 바퀴가 끝났으면 다시 셔플
+  if (sentenceQueue.length === 0 || currentIndex >= sentenceQueue.length) {
+    shuffleQueue();
+  }
+
+  const item = sentenceQueue[currentIndex];
+  currentIndex++;
+
+  updateCount();
+
+  return item;
+}
+
+function updateCount() {
+  const countElement = document.getElementById("count");
+
+  if (!countElement) return;
+
+  countElement.innerText =
+    `${currentIndex} / ${sentenceQueue.length}`;
 }
 
 function playSentence() {
@@ -124,7 +159,7 @@ function playSentence() {
   speechSynthesis.cancel();
   if (timer) clearTimeout(timer);
 
-  const item = pickRandom();
+  const item = getNextSentence();
   document.getElementById("sentence").innerText = `${item.Korean}\n`;
 
   const utterKor = new SpeechSynthesisUtterance(item.Korean);
